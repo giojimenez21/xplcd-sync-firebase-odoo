@@ -1,4 +1,4 @@
-Tablas utilizadas
-product.template
-stock.location
-stock.quant
+# Tablas utilizadas
+### product.template
+### stock.location
+### stock.quant
