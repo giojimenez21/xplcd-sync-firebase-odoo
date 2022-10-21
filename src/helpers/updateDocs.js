@@ -1,8 +1,13 @@
-const { doc, setDoc, updateDoc, getDocs, collection } = require("firebase/firestore");
+const { doc, setDoc } = require("firebase/firestore");
 const { firebaseStore } = require("../config/firebase");
 const { odoo } = require("../config/odoo");
+const { dropCollections } = require("./dropCollections");
 
-const createDocs = (records, recordsLocation) => {
+const updateDocs = async() => {
+    await odoo.connect();
+    const records = await odoo.searchRead('product.template', ['|','|',['name', 'like', 'DISP'],['name', 'like', 'LCD'],['name', 'like', 'TOUCH']]);
+    const recordsLocation = await odoo.searchRead('stock.quant');
+    await dropCollections();
     records.forEach(async (r) => {
         const locations = [];
         recordsLocation.forEach((rl) => {
@@ -22,53 +27,10 @@ const createDocs = (records, recordsLocation) => {
             locations,
         });
     });
+    console.log('Actualizados');
 };
 
-const updateDB = async () => {
-    const docsData = [], docsUpdated = [];
-    await odoo.connect();
-    const records = await odoo.searchRead(`product.template`);
-    const docs = await getDocs(collection(firebaseStore, "products"));
-    docs.forEach((d) => docsData.push(d.data()));
-    records.forEach(async (r) => {
-        if ( r.display_name.includes("DISP") || r.display_name.includes("LCD") || r.display_name.includes("TOUCH")) {
-            const docActual = docsData.find((d) => d.id === r.id);
-            if (docActual) {
-                if (docActual.price !== r.list_price) {
-                    docsUpdated.push({
-                        type: "Actualizado",
-                        name: r.display_name,
-                        pricePrevious: docActual.price,
-                        priceActual: r.list_price,
-                    });
-                    await updateDoc(
-                        doc(firebaseStore, "products", docActual.id.toString()),
-                        {
-                            ...docActual,
-                            price: r.list_price,
-                        }
-                    );
-                }
-            } else {
-                docsUpdated.push({
-                    type: "Nuevo",
-                    name: r.display_name,
-                    pricePrevious: "Sin precio.",
-                    priceActual: r.list_price,
-                });
-                await setDoc(doc(firebaseStore, "products", r.id.toString()), {
-                    id: r.id,
-                    name: r.display_name,
-                    price: r.list_price,
-                    stock: r.qty_available,
-                });
-            }
-        }
-    });
-    return docsUpdated;
-};
 
 module.exports = {
-    createDocs,
-    updateDB
+    updateDocs,
 };
