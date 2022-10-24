@@ -6,7 +6,7 @@ const { dropCollections } = require("./dropCollections");
 const updateDocs = async() => {
     await odoo.connect();
     const records = await odoo.searchRead('product.template', ['|','|',['name', 'like', 'DISP'],['name', 'like', 'LCD'],['name', 'like', 'TOUCH']]);
-    const recordsLocation = await odoo.searchRead('stock.quant');
+    const recordsLocation = await odoo.searchRead('stock.quant', [['location_id','!=',14],['location_id','!=',5],['location_id','!=',4]]);
     await dropCollections();
     records.forEach(async (r) => {
         const locations = [];

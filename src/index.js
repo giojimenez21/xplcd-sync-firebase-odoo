@@ -18,7 +18,8 @@ app.listen(process.env.PORT || 4000 , () => {
     console.log('Server listen');
 });
 
-cron.schedule('*/5 * * * *', async() => {
-    await updateDocs();
-});
+
+// cron.schedule('*/5 * * * *', async() => {
+    // await updateDocs();
+// });
 
