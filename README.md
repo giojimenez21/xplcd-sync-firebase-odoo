@@ -4,3 +4,7 @@ Aplicación a peticion del cliente que sincroniza datos obtenidos de la API de O
 - Express
 - Pug
 - Firestore
+## Tablas utilizadas
+- product.template
+- stock.location
+- stock.quant
